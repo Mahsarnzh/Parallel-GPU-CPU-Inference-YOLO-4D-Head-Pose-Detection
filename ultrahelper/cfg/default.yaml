@@ -9,7 +9,7 @@ mode: train # (str) YOLO mode, i.e. train, val, predict, export, track, benchmar
 # Train settings -------------------------------------------------------------------------------------------------------
 model: ultrahelper/cfg/yolov8-pose.yaml
 data: ultrahelper/cfg/coco-pose8.yaml
-epochs: 100 # (int) number of epochs to train for
+epochs: 4 # (int) number of epochs to train for
 time: # (float, optional) number of hours to train for, overrides epochs if supplied
 patience: 100 # (int) epochs to wait for no observable improvement for early stopping of training
 batch: 16 # (int) number of images per batch (-1 for AutoBatch)

@@ -1,5 +1,13 @@
+from .nn.conv import ModifiedConv, ModifiedSPPF
+globals()["SPPF"] = ModifiedSPPF
 from ultralytics.nn.tasks import *
+
 from .nn import REGISTRY
+REGISTRY['base'] = tuple(ModifiedConv if m.__name__ == 'Conv' else m for m in REGISTRY['base'])
+globals()["Conv"] = ModifiedConv
+REGISTRY['base'] = tuple(ModifiedSPPF if m.__name__ == 'SPPF' else m for m in REGISTRY['base'])
+globals()["SPPF"] = ModifiedSPPF
+# from ultralytics.nn.modules.conv import Conv  # Make sure to import the custom Conv
 
 def parse_model_extended(d, ch, verbose=True):  # model_dict, input_channels(3)
     """
@@ -28,7 +36,9 @@ def parse_model_extended(d, ch, verbose=True):  # model_dict, input_channels(3)
         depth, width, max_channels = scales[scale]
 
     if act:
-        Conv.default_act = eval(act)  # redefine default activation, i.e. Conv.default_act = torch.nn.SiLU()
+        # Conv.default_act = eval(act)  # redefine default activation, i.e. Conv.default_act = torch.nn.SiLU()
+        ModifiedConv.default_act = eval(act)  # redefine default activation, i.e. Conv.default_act = torch.nn.SiLU()
+
         if verbose:
             LOGGER.info(f"{colorstr('activation:')} {act}")  # print
 
@@ -75,6 +85,7 @@ def parse_model_extended(d, ch, verbose=True):  # model_dict, input_channels(3)
             *REGISTRY['base']
         }
     )
+
     repeat_modules = frozenset(  # modules with 'repeat' arguments
         {
             BottleneckCSP,
@@ -170,7 +181,21 @@ def parse_model_extended(d, ch, verbose=True):  # model_dict, input_channels(3)
         else:
             c2 = ch[f]
 
-        m_ = torch.nn.Sequential(*(m(*args) for _ in range(n))) if n > 1 else m(*args)  # module
+        # # Modify here to use the custom Conv class
+        # if m is Conv:
+        #     m_ = Conv(*args)  # Use Conv instead of default torch Conv
+        # else:
+        #     m_ = torch.nn.Sequential(*(m(*args) for _ in range(n))) if n > 1 else m(*args)  # module
+            
+        # Modify here to use the custom ModifiedConv class
+        if m.__name__ == "Conv":
+            m_ = ModifiedConv(*args)
+        if m is Conv:
+            m_ = ModifiedConv(*args)  # swap to your custom conv
+        else:
+            m_ = torch.nn.Sequential(*(m(*args) for _ in range(n))) if n > 1 else m(*args)  # module
+
+        
         t = str(m)[8:-2].replace("__main__.", "")  # module type
         m_.np = sum(x.numel() for x in m_.parameters())  # number params
         m_.i, m_.f, m_.type = i, f, t  # attach index, 'from' index, type
@@ -181,4 +206,10 @@ def parse_model_extended(d, ch, verbose=True):  # model_dict, input_channels(3)
         if i == 0:
             ch = []
         ch.append(c2)
+        if globals().get('Conv') is ModifiedConv:
+            print('global has been modified')
+        else:
+            print('globals has not been updated')
+
     return torch.nn.Sequential(*layers), sorted(save)
+
