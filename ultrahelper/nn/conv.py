@@ -1,26 +1,12 @@
-import torch.nn as nn
-import torch
-from ultrahelper.cfg.yolov8_pose import YoloV8Config  # import from correct YAML module
+from ultrahelper.cfg.yolov8_pose import YoloV8Config  
 from ultralytics.nn.modules.conv import Conv
 from ultralytics.nn.modules.block import SPPF
 
 cfg = YoloV8Config()
 
-
-def autopad(k, p=None, d=1):
-    if d > 1:
-        k = d * (k - 1) + 1 if isinstance(k, int) else [d * (x - 1) + 1 for x in k]
-    if p is None:
-        p = k // 2 if isinstance(k, int) else [x // 2 for x in k]
-    return p
-
-
-default_act = cfg.get_default_activation()
-
-
 class ModifiedConv(Conv): 
-    default_act = YoloV8Config().get_default_activation()  # .get_activation()  # default activation
-    print(f'activation function is: {default_act}')
+    default_act = YoloV8Config().get_default_activation()  # .get_activation() 
+    # print(f'activation function is: {default_act}')
 
 
 class ModifiedSPPF(SPPF):

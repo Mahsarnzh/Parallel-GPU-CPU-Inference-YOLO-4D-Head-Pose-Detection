@@ -207,10 +207,10 @@ def parse_model_extended(d, ch, verbose=True):  # model_dict, input_channels(3)
             ch = []
         ch.append(c2)
         
-        if globals().get('Conv') is ModifiedConv:
-            print('global has been modified')
-        else:
-            print('globals has not been updated')
+        # if globals().get('Conv') is ModifiedConv:
+        #     print('global has been modified')
+        # else:
+        #     print('globals has not been updated')
 
     return torch.nn.Sequential(*layers), sorted(save)
 
