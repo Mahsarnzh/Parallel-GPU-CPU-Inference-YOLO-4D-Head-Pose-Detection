@@ -1,22 +1,9 @@
 import torch.nn as nn
 import torch
-from ultrahelper.cfg.yolov8_pose import Default_CFG  # import from correct YAML module
+from ultrahelper.cfg.yolov8_pose import YoloV8Config  # import from correct YAML module
+from ultralytics.nn.modules.conv import Conv
 
-
-def get_activation(name):
-    name = (name or 'silu').lower()
-    if name == 'silu':
-        return nn.SiLU()
-    elif name == 'relu':
-        return nn.ReLU()
-    elif name == 'leakyrelu':
-        return nn.LeakyReLU(0.1)
-    elif name == 'gelu':
-        return nn.GELU()
-    elif name == 'identity':
-        return nn.Identity()
-    else:
-        raise ValueError(f"Unsupported activation: {name}")
+cfg = YoloV8Config()
 
 def autopad(k, p=None, d=1):
     if d > 1:
@@ -26,33 +13,12 @@ def autopad(k, p=None, d=1):
     return p
 
 
-class ModifiedConv(nn.Module):  
-    def __init__(self, c1, c2, k=1, s=1, p=None, g=1, d=1, act=True):
-        super().__init__()
-        self.conv = nn.Conv2d(c1, c2, k, s, autopad(k, p, d), groups=g, dilation=d, bias=False)
-        self.bn = nn.BatchNorm2d(c2)
-
-        # Decide activation
-        if isinstance(act, str):
-            self.act = get_activation(act)
-        elif isinstance(act, nn.Module):
-            self.act = act
-        elif act is False:
-            self.act = nn.Identity()
-        else:
-            # Pull default from cfg
-            default_act = Default_CFG.get('custom', {}).get('act', 'silu')
-            self.act = get_activation(default_act)
-        print(f'activation function is: {self.act}')
+default_act = cfg.get_default_activation()
 
 
-    def forward(self, x):
-        return self.act(self.bn(self.conv(x)))
-
-    def forward_fuse(self, x):
-        return self.act(self.conv(x))
-
-
+class ModifiedConv(Conv): 
+    default_act = YoloV8Config().get_default_activation()  # .get_activation()  # default activation
+    print(f'activation function is: {default_act}')
 
 
 
@@ -82,4 +48,5 @@ class ModifiedSPPF(nn.Module):
         y = [self.cv1(x)]
         y.extend(self.m(y[-1]) for _ in range(3))
         return self.cv2(torch.cat(y, 1))
+
 
