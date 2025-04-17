@@ -1,13 +1,13 @@
 from .nn.conv import ModifiedConv, ModifiedSPPF
-globals()["SPPF"] = ModifiedSPPF
+from ultrahelper.nn.pose import ModifiedPose
 from ultralytics.nn.tasks import *
-
 from .nn import REGISTRY
-REGISTRY['base'] = tuple(ModifiedConv if m.__name__ == 'Conv' else m for m in REGISTRY['base'])
-globals()["Conv"] = ModifiedConv
-REGISTRY['base'] = tuple(ModifiedSPPF if m.__name__ == 'SPPF' else m for m in REGISTRY['base'])
-globals()["SPPF"] = ModifiedSPPF
+
 # from ultralytics.nn.modules.conv import Conv  # Make sure to import the custom Conv
+
+
+globals()["Conv"] = ModifiedConv
+globals()["SPPF"] = ModifiedSPPF
 
 def parse_model_extended(d, ch, verbose=True):  # model_dict, input_channels(3)
     """
@@ -206,6 +206,7 @@ def parse_model_extended(d, ch, verbose=True):  # model_dict, input_channels(3)
         if i == 0:
             ch = []
         ch.append(c2)
+        
         if globals().get('Conv') is ModifiedConv:
             print('global has been modified')
         else:

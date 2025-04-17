@@ -3,6 +3,9 @@
 # Ultralytics YOLOv8-pose keypoints/pose estimation model with P3/8 - P5/32 outputs
 # Model docs: https://docs.ultralytics.com/models/yolov8
 # Task docs: https://docs.ultralytics.com/tasks/pose
+# anchor: &anchor anchor
+# value: *anchor
+# class_dict = {"%s.%s" % (c.__module__, c.__name__): c for c in (ModifiedConv, ModifiedSPPF)}
 
 # Parameters
 nc: 1 # number of classes
@@ -15,11 +18,20 @@ scales: # model compound scaling constants, i.e. 'model=yolov8n-pose.yaml' will 
   l: [1.00, 1.00, 512]
   x: [1.00, 1.25, 512]
 
+
 # Custom modules and overrides
 custom:
   ModifiedConv: ultrahelper.nn.conv.ModifiedConv  # path to your custom Conv module
   ModifiedSPPF: ultrahelper.nn.conv.ModifiedSPPF
-  act: lEakyrelu  # change this to 'silu', 'relu', 'leakyrelu', 'identity', etc.
+  act: RelU  # change this to 'silu', 'relu', 'leakyrelu', 'identity', etc.
+
+# c:
+#   activation:
+#     mod: torch.nn
+#     class: SiLU  # Identity, 
+#     args: []
+#     kwargs:
+#       inplace: true
 
 # YOLOv8.0n backbone
 backbone:
