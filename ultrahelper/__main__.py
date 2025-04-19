@@ -1,6 +1,10 @@
-from .load import load_trainer,load_model
+from .load import load_trainer, load_model, load_deployment_model
 from .nn import InputSignatureWrap
 from torch.fx import symbolic_trace
+# from .test.pipeline_test import run_pipeline
+from .pipeline import ParallelInferencePipeline
+from .pipeline import *
+
 import argparse
 
 def get_args():
@@ -21,8 +25,16 @@ def main():
         model = InputSignatureWrap(model)
         model_traced = symbolic_trace(model)
         model_traced.graph.print_tabular()
+    
+    # elif args.pipeline:
+    #     raise NotImplementedError()
     elif args.pipeline:
-        raise NotImplementedError()
+        pipeline = ParallelInferencePipeline()
+        pipeline.run()
+
+    else:
+         print("Please specify one of --train, --trace, or --pipeline")
+
     
 
 if __name__ == '__main__':
