@@ -27,7 +27,7 @@ class Postprocessor:
         self.current_dir = current_dir
 
     def _tracker_worker(self, source):
-        # load your CPU postprocessor
+        # load CPU postprocessor
         model = load_postprocessor()
 
         # stream=True yields one `r` at a time
@@ -175,7 +175,7 @@ def _postprocessor_worker(result_q: Queue, img_q: Queue):
             kpt_list = decode_keypoint_heatmaps(raw_kpts)    
             norm_kps = np.array(kpt_list[0])                 # shape (K,3)
 
-            # b) swap to (y_norm, x_norm, conf) for your draw fns
+            # b) swap to (y_norm, x_norm, conf) for draw fns
             kps = norm_kps[:, [1, 0, 2]]                     # (K,3)
 
             # c) draw skeleton & keypoints
