@@ -19,23 +19,12 @@ OUTPUT_PATH = str(OUTPUT_DIR / "output.mp4")
 
 ultrahelper_root = current_dir
 
-def get_best_model_path():
-    current_dir = Path(__file__).resolve().parent
-    best_model_path = (current_dir.parent / 'runs' / 'pose' / 'train2' / 'weights' / 'best.pt').resolve()
-    if not best_model_path.exists():
-        raise FileNotFoundError(f"best.pt not found at {best_model_path}")
-    return str(best_model_path)
-
 class Postprocessor:
     def __init__(self):
         # a small queue of frames for display
         self.frame_queue = queue.Queue(maxsize=2)
-
         # ensure ultrahelper is on the path
         self.current_dir = current_dir
-
-        # resolve your best.pt
-        self.model_path = get_best_model_path()
 
     def _tracker_worker(self, source):
         # load your CPU postprocessor
