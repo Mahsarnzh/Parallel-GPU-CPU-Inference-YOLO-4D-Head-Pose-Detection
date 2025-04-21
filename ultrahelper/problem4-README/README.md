@@ -76,3 +76,6 @@ pip install torch torchvision opencv-python ultralytics
 ## License
 This project is released under the AGPL‑3.0 License (same as Ultralytics). Refer to [LICENSE](https://ultralytics.com/license) for details.
 
+---
+*Authored by Mahsa Raeisinezhad.*
+
