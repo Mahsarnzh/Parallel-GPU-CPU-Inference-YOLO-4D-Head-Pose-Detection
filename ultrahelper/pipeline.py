@@ -233,7 +233,6 @@ def _postprocessor_worker(result_q: Queue, img_q: Queue):
             # decode head_feats across all three scales:
             keypoints_per_box = decode_keypoint_heatmaps_multi( raw_kpts, boxes, feat_stride, grids, sizes, h_px,  w_px)
             for kps in keypoints_per_box:
-                print(kps, 'kpssssss')
                 draw_connections(frame, kps, EDGES, 0.90)
                 draw_keypoints(frame, kps, 0.90)
 
@@ -260,20 +259,7 @@ def _postprocessor_worker(result_q: Queue, img_q: Queue):
                             cv2.FONT_HERSHEY_SIMPLEX,
                             0.5, (0,255,0), 2)
 
-            
-            for *xyxy, conf, cls in boxes.tolist():
-                x1n, y1n, x2n, y2n = xyxy
-                if 0.0 <= x2n <= 1.0:
-                    x1, y1 = int(x1n * w_px), int(y1n * h_px)
-                    x2, y2 = int(x2n * w_px), int(y2n * h_px)
-                else:
-                    x1, y1, x2, y2 = map(int, (x1, y1, x2, y2))
-                cv2.rectangle(frame, (x1, y1), (x2, y2), (0,255,100), 2)
-                cv2.putText(frame, f"{conf:.2f}",
-                            (x1, y1 - 5),
-                            cv2.FONT_HERSHEY_SIMPLEX,
-                            0.5, (0,255,0), 2)
-
+        
 
         # ─── overlay performance & emit ───
         fps = 1000.0 / (gpu_ms + cpu_ms)
