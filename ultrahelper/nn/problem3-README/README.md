@@ -58,3 +58,5 @@ monitor_4d_ops=1 python -m ultrahelper --train
 
 Feel free to adapt the placement of `monitor_4d_ops` guards to cover any other custom modules or methods you add.
 
+---
+*Authored by Mahsa Raeisinezhad.*
