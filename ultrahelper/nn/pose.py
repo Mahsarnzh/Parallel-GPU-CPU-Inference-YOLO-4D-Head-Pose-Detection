@@ -3,7 +3,6 @@ from ultralytics.nn.modules.head import Pose, Detect
 from .register import register_module
 import torch.nn as nn
 from ..utils.monitor_4d import monitor_4d_ops, register_4d_monitor
-import os
 
 
 @register_module('head')
@@ -20,11 +19,6 @@ class ModifiedPose(Pose):
         """
         Contains maximum amount of operations excluding 'view' methods 
         """
-        assert isinstance(x, (list, tuple)), f"Expected input to be list or tuple of tensors, got {type(x)}"
-        for i, tensor in enumerate(x):
-            assert isinstance(tensor, torch.Tensor), f"Element at index {i} is not a tensor: {type(tensor)}"
-            assert tensor.dim() == 4, f"Tensor at index {i} must be 4D (got shape: {tensor.shape})"
-        
         bs = x[0].shape[0]
         feats = [self.cv4[i](x[i]) for i in range(self.nl)]  # Pure convolution features (4D tensors)
         det_out = Detect.forward(self, x)  # detection output
@@ -35,11 +29,14 @@ class ModifiedPose(Pose):
         Contains everything else left (including 'view' methods)
         """
         feats, det_out, bs = x
-        kpt = torch.cat([f.view(bs, self.nk, -1) for f in feats], -1)
-        assert kpt.dim() != 4, f"dimension of kpt is expected to be different than 4, but got {kpt.dim()}"
+        # build a list of reshaped feature maps
+        views = []
+        for f in feats:
+            views.append(f.view(bs, self.nk, -1))
+        kpt = torch.cat(views, dim=-1)
         if self.training:
             return det_out, kpt
-        
+
         pred_kpt = self.kpts_decode(bs, kpt)
         return torch.cat([det_out, pred_kpt], 1) if self.export else (torch.cat([det_out[0], pred_kpt], 1), (det_out[1], kpt))
 
@@ -64,5 +61,4 @@ class ModifiedPosePostprocessor(ModifiedPose):
     def forward(self,feats):
         with monitor_4d_ops(self):          
             with torch.no_grad():
-                # print(self.forward_postprocessor(feats))
                 return self.forward_postprocessor(feats)
