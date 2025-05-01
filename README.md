@@ -7,6 +7,21 @@ Custom modules can be defined and referenced through the configuration file:
 
 The infrastructure for this mechanism is already implemented in `ultrahelper` and demonstrated across multiple modules.
 
+#### 4. Implemented a parallel inference pipeline
+Built a parallel inference pipeline consisting of two components:
+- The **hardware model**, running on a GPU
+- The **postprocessor**, running on the CPU
+
+The functions to load the two parts of the model are defined in `ultrahelper.load`:
+- `load_hardware_model()`
+- `load_postprocessor()`
+
+Your pipeline should:
+- Run both components in parallel
+- Real-time collect and display while running the pipeline in an infinite loop:
+  - Frame rate (FPS)
+  - Inference latency
+
 ---
 
 ### Setup
@@ -16,11 +31,12 @@ The infrastructure for this mechanism is already implemented in `ultrahelper` an
 ```bash
 pip install ultralytics
 ```
+
 2. Run the following to download the COCO8 dataset and ensure the training pipeline is functional:
 
 ```bash
 python -m ultrahelper --train
 ```
 
-3. Make sure you have Pytorch version above 2.0 in order to use symbolic tracing. 
+3. Make sure you have Pytorch version above 2.0 in order to use symbolic tracing.
 
