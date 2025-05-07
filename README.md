@@ -6,21 +6,36 @@ Custom modules can be defined and referenced through the configuration file:
 `ultrahelper/cfg/yolov8-pose.yaml`.
 
 The infrastructure for this mechanism is already implemented in `ultrahelper` and demonstrated across multiple modules.
+## Implemented Tasks
 
-#### 4. Implemented a parallel inference pipeline
-Built a parallel inference pipeline consisting of two components:
-- The **hardware model**, running on a GPU
-- The **postprocessor**, running on the CPU
+### 1. Resolved Symbolic Tracing Issue in YOLO Model
 
-The functions to load the two parts of the model are defined in `ultrahelper.load`:
-- `load_hardware_model()`
-- `load_postprocessor()`
+* Identified and debugged a symbolic tracing error in the YOLOv8 model using `torch.fx`.
+* Traced the root cause to runtime-dependent logic within the `C2f` module from `ultralytics.nn.modules.block`.
+* Implemented a traceable version of the module (`ModifiedC2f`) in `ultrahelper.nn.block`, ensuring compatibility with PyTorch's symbolic tracer.
 
-Your pipeline should:
-- Run both components in parallel
-- Real-time collect and display while running the pipeline in an infinite loop:
-  - Frame rate (FPS)
-  - Inference latency
+### 2. Added Configurable Activation Functions
+
+* Enhanced the model’s flexibility by modifying the `Conv` and `SPPF` modules to support configurable activation functions (e.g., SiLU, ReLU).
+* Extended the model's YAML config (`ultrahelper/cfg/yolov8-pose.yaml`) to support activation selection without altering Ultralytics' core code.
+
+### 3. Modularized `ModifiedPose` for Deployment
+
+* Refactored the `ModifiedPose` class in `ultrahelper.nn.pose` to separate hardware-incompatible operations.
+* Created two deployable components:
+
+  * `ModifiedPoseHead`: optimized for hardware execution, retaining all convolutional layers.
+  * `ModifiedPosePostprocessor`: runs on CPU and handles tensor reshaping and unsupported operations.
+* Ensured compliance with hardware constraints (e.g., only 4D tensor operations on device).
+
+### 4. Built Parallel GPU-CPU Inference Pipeline
+
+* Developed a real-time parallel inference pipeline with two decoupled components:
+
+  * A hardware model executing on the GPU.
+  * A postprocessing module running on the CPU.
+* Utilized `load_hardware_model()` and `load_postprocessor()` from `ultrahelper.load`.
+* Implemented real-time performance monitoring, displaying FPS and inference latency while processing video frames continuously.
 
 ---
 
