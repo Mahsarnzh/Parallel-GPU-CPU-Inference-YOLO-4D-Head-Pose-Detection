@@ -39,7 +39,7 @@ The infrastructure for this mechanism is already implemented in `ultrahelper` an
 
 ---
 
-### Setup
+### Setup, after cloning this project
 
 1. Install the `ultralytics` package.
 
