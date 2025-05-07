@@ -53,5 +53,10 @@ pip install ultralytics
 python -m ultrahelper --train
 ```
 
+For parallel processing inference and FPS and CPU and GPU time, run:
+```bash
+python -m ultrahelper --pipeline
+```
+
 3. Make sure you have Pytorch version above 2.0 in order to use symbolic tracing.
 
