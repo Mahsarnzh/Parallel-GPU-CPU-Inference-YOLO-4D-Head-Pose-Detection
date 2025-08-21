@@ -51,6 +51,8 @@ pip install ultralytics
 
 ```bash
 python -m ultrahelper --train
+python -m ultrahelper --pipeline
+python -m ultrahelper --trace
 ```
 
 For parallel processing inference and FPS and CPU and GPU time, run:
